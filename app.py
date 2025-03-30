@@ -193,7 +193,7 @@ with tab2:
     with col4:
         st.metric("Rmax (bottom)", f"{rmax:.2f} cm")
 
-# Tab 2: RPM/RCF Calculator
+# Tab 3: RPM/RCF Calculator
 with tab3:
     st.header("RPM/RCF Calculator")
     st.markdown("""
@@ -357,4 +357,4 @@ st.sidebar.markdown("""
 
 # Add footer
 st.markdown("---")
-st.caption("© 2023 PRP Therapy Calculator | For clinical use only | v2.1.0")
+st.caption("© 2025 PRP Therapy Calculator | For clinical use only | v2.1.0")
