@@ -81,34 +81,40 @@ with tab1:
                                        help="Typically 10-20% of bladder volume")
 
         # Glue-specific parameters
-        if glue_type != "Standard PRP":
-            with st.expander(f"{glue_type} Parameters"):
-                col1, col2 = st.columns(2)
-                with col1:
-                    if "Cryo" in glue_type:
-                        cryo_vol = st.number_input("Cryoprecipitate Volume (ml)", 
-                                                 min_value=10, 
-                                                 max_value=50,
-                                                 value=30,
-                                                 step=5)
-                    calcium_ratio = st.selectbox("Calcium Gluconate Ratio", 
-                                               ["1:5", "1:10", "1:20"],
-                                               index=0 if glue_type == "PRF Gel" else 1,
-                                               help="1:5 = 10ml CaGluc per 50ml base")
-                
-                with col2:
-                    if "PRF" in glue_type:
-                        incubation_time = st.number_input("Incubation Time (min)", 
-                                                        min_value=5, 
-                                                        max_value=60,
-                                                        value=30,
-                                                        step=5)
-                    activation_temp = st.number_input("Activation Temperature (°C)", 
-                                                     min_value=24, 
-                                                     max_value=37,
-                                                     value=37 if "PRF" in glue_type else 24,
-                                                     step=1)
+        # In the "PRP Targets & Glue Preparation" section:
 
+with st.expander("PRP Targets & Glue Preparation", expanded=True):
+    col1, col2, col3 = st.columns([1,1,1])
+    # ... existing column content ...
+
+# Move the glue parameters OUTSIDE the main expander
+if glue_type != "Standard PRP":
+    with st.expander(f"{glue_type} Parameters", expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            if "Cryo" in glue_type:
+                cryo_vol = st.number_input("Cryoprecipitate Volume (ml)", 
+                                         min_value=10, 
+                                         max_value=50,
+                                         value=30,
+                                         step=5)
+            calcium_ratio = st.selectbox("Calcium Gluconate Ratio", 
+                                       ["1:5", "1:10", "1:20"],
+                                       index=0 if glue_type == "PRF Gel" else 1,
+                                       help="1:5 = 10ml CaGluc per 50ml base")
+        
+        with col2:
+            if "PRF" in glue_type:
+                incubation_time = st.number_input("Incubation Time (min)", 
+                                                min_value=5, 
+                                                max_value=60,
+                                                value=30,
+                                                step=5)
+            activation_temp = st.number_input("Activation Temperature (°C)", 
+                                            min_value=24, 
+                                            max_value=37,
+                                            value=37 if "PRF" in glue_type else 24,
+                                            step=1)
     # Calculate treatment protocol
     if st.button("Generate Comprehensive PRP Protocol"):
         base_sessions = {
