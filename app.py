@@ -1,14 +1,17 @@
-# Tab 1: Enhanced HSCT Hemorrhagic Cystitis Module
-with tab1:
+import streamlit as st
+
+# Create ALL tabs FIRST
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "HSCT Hemorrhagic Cystitis",
+    "Radius Calculator", 
+    "RPM/RCF Calculator", 
+    "Yield Calculator",
+    "Dosage Calculator"  # Removed trailing comma
+])
+
+# Now populate each tab
+with tab1:  # This works because tab1 was already created
     st.header("Post-HSCT Hemorrhagic Cystitis PRP Protocol")
-    st.markdown("""
-    **Intravesical PRP therapy calculator** with:
-    - Ultrasound-guided volume adjustment
-    - CBC platelet integration
-    - Blood volume/apheresis requirements
-    - Fibrin/PRF glue preparation protocols
-    """)
-    
     # MOVED CLINICAL PARAMETERS UP FIRST
     with st.expander("Clinical Parameters", expanded=True):
         col1, col2 = st.columns(2)
