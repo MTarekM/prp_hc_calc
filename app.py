@@ -26,6 +26,7 @@ with tab1:
     - Fibrin/PRF glue preparation protocols
     """)
     
+    # Clinical Parameters
     with st.expander("Clinical Parameters", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
@@ -41,6 +42,7 @@ with tab1:
             hematoma_size = st.number_input("Largest Hematoma Diameter (cm)", min_value=0.0, value=0.0, step=0.1,
                                           help="Enter 0 if no hematoma")
 
+    # Patient Blood Parameters
     with st.expander("Patient Blood Parameters", expanded=True):
         col1, col2 = st.columns(2)
         with col1:
@@ -56,6 +58,7 @@ with tab1:
             response_status = st.selectbox("Response to Previous Treatment", 
                                          ["Naive", "Partial Response", "Recurrent"])
 
+    # PRP Targets
     with st.expander("PRP Targets & Glue Preparation", expanded=True):
         col1, col2, col3 = st.columns([1,1,1])
         with col1:
@@ -80,7 +83,7 @@ with tab1:
                                        step=5,
                                        help="Typically 10-20% of bladder volume")
 
-    # Glue-specific parameters (outside main expander)
+    # Glue Parameters (only shown if not Standard PRP)
     glue_params = {}
     if glue_type != "Standard PRP":
         with st.expander(f"{glue_type} Parameters", expanded=True):
@@ -110,8 +113,9 @@ with tab1:
                                                                value=37 if "PRF" in glue_type else 24,
                                                                step=1)
 
-    # Generate button (always visible)
-    if st.button("Generate Comprehensive PRP Protocol"):
+    # Generate Button - ALWAYS VISIBLE
+    st.markdown("---")  # Visual separator
+    if st.button("Generate Comprehensive PRP Protocol", key="generate_button"):
         try:
             # Session calculations
             base_sessions = {
@@ -130,14 +134,11 @@ with tab1:
             elif response_status == "Recurrent": sessions += 2
             
             # Blood Volume Calculations
-            required_blood_ml = 0
-            apheresis_vol_ml = 0
-            if cbc_plt > 0 and target_plt > 0 and target_vol > 0:
-                required_blood_ml = (target_vol * target_plt) / (cbc_plt * 0.5)
-                required_blood_ml = max(20, required_blood_ml)
-                
-                apheresis_vol_ml = (target_vol * target_plt) / (cbc_plt * 2.5)
-                apheresis_vol_ml = max(50, apheresis_vol_ml)
+            required_blood_ml = (target_vol * target_plt) / (cbc_plt * 0.5) if cbc_plt > 0 else 0
+            required_blood_ml = max(20, required_blood_ml)
+            
+            apheresis_vol_ml = (target_vol * target_plt) / (cbc_plt * 2.5) if cbc_plt > 0 else 0
+            apheresis_vol_ml = max(50, apheresis_vol_ml)
             
             # Display Results
             st.subheader("PRP Preparation Requirements")
@@ -153,31 +154,7 @@ with tab1:
                 st.metric("Platelet Dose per Instill", 
                         f"{(target_vol * target_plt):,.0f}×10³ platelets")
             
-            # Glue preparation logic
-            glue_prep_steps = []
-            if glue_type == "Fibrin Glue (Cryo-based)":
-                glue_prep_steps = [
-                    f"1. Prepare {glue_params['cryo_vol']}ml cryoprecipitate from frozen plasma (-80°C)",
-                    f"2. Add calcium gluconate at {glue_params['calcium_ratio']} ratio",
-                    f"3. Incubate at {glue_params['activation_temp']}°C for 30min to form fibrin matrix",
-                    "4. Combine with PRP immediately before instillation"
-                ]
-            elif glue_type == "PRF Glue (Combined)":
-                glue_prep_steps = [
-                    "1. Prepare both platelet concentrate and cryoprecipitate",
-                    f"2. Mix components at 2:1 ratio (PRP:Cryo)",
-                    f"3. Add calcium gluconate at {glue_params['calcium_ratio']} ratio",
-                    f"4. Incubate at {glue_params['activation_temp']}°C for {glue_params.get('incubation_time', 30)}min",
-                    "5. Form final gel scaffold under sterile conditions"
-                ]
-            elif glue_type == "PRF Gel":
-                glue_prep_steps = [
-                    "1. Prepare high-concentration PRP (≥2000×10³/μL)",
-                    f"2. Add calcium gluconate at {glue_params['calcium_ratio']} ratio",
-                    f"3. Activate at {glue_params['activation_temp']}°C for {glue_params.get('incubation_time', 30)}min",
-                    "4. Centrifuge at 200g for 5min to form fibrin network"
-                ]
-
+            # Treatment Protocol
             st.subheader("Treatment Protocol")
             treatment_text = f"""
             - **{sessions} sessions** at **{treatment_freq}** intervals
@@ -191,11 +168,33 @@ with tab1:
             """
             
             if glue_type != "Standard PRP":
+                glue_prep_steps = []
+                if glue_type == "Fibrin Glue (Cryo-based)":
+                    glue_prep_steps = [
+                        f"1. Prepare {glue_params.get('cryo_vol', 30)}ml cryoprecipitate",
+                        f"2. Add calcium gluconate at {glue_params.get('calcium_ratio', '1:5')} ratio",
+                        f"3. Incubate at {glue_params.get('activation_temp', 37)}°C for 30min"
+                    ]
+                elif glue_type == "PRF Glue (Combined)":
+                    glue_prep_steps = [
+                        "1. Prepare both platelet concentrate and cryoprecipitate",
+                        f"2. Mix components at 2:1 ratio (PRP:Cryo)",
+                        f"3. Add calcium gluconate at {glue_params.get('calcium_ratio', '1:5')} ratio",
+                        f"4. Incubate at {glue_params.get('activation_temp', 37)}°C for {glue_params.get('incubation_time', 30)}min"
+                    ]
+                elif glue_type == "PRF Gel":
+                    glue_prep_steps = [
+                        "1. Prepare high-concentration PRP (≥2000×10³/μL)",
+                        f"2. Add calcium gluconate at {glue_params.get('calcium_ratio', '1:5')} ratio",
+                        f"3. Activate at {glue_params.get('activation_temp', 37)}°C for {glue_params.get('incubation_time', 30)}min",
+                        "4. Centrifuge at 200g for 5min"
+                    ]
+                
                 treatment_text += f"""
                 **{glue_type} Preparation Protocol:**
                 {''.join([f'\n- {step}' for step in glue_prep_steps])}
                 """
-                
+            
             st.markdown(treatment_text)
             
             # Evidence section
@@ -207,33 +206,22 @@ with tab1:
             3. **Grade-Based Targets:** 
                - Grades 1-2: ≥1000×10³/μL (Springer 2019)
                - Grades 3-4: ≥1500×10³/μL (Nature 2020)
-            
-            **Safety Considerations:**
-            - Minimum blood draws enforced (20ml manual/50ml apheresis)
-            - Volume limited to 15% bladder capacity
-            - Platelet thresholds prevent under-dosing
             """
             
             if glue_type != "Standard PRP":
-                evidence_text = """
+                evidence_text += """
                 **Fibrin/PRF Glue Validation:**
-                1. **Fibrin Matrix Formation:** 
-                   - Cryoprecipitate + calcium activation achieves 150-300mg/dL fibrinogen (Transfusion 2023)
-                   - 1:5 calcium ratio provides optimal thrombin generation (35IU/ml)
-                
-                2. **PRF Gel Protocol:**
-                   - 2000g centrifugation yields dense fibrin networks (≥85% platelet retention)
-                   - 37°C incubation enhances growth factor release (PDGF-BB ↑40%, VEGF ↑35%)
-                
-                3. **Combined PRF Glue:**
-                   - PRP+Cryo mixes show 2x fibrinogen vs standard PRP (p<0.01)
-                   - Dual centrifugation protocol maintains 92% platelet viability
-                """ + evidence_text
-                
+                - Cryoprecipitate + calcium achieves 150-300mg/dL fibrinogen (Transfusion 2023)
+                - 1:5 calcium ratio provides optimal thrombin generation
+                - 37°C incubation enhances growth factor release
+                """
+            
             st.markdown(evidence_text)
 
         except Exception as e:
             st.error(f"Error generating protocol: {str(e)}")
+
+
 
 # Tab 2: Radius Calculator
 with tab2:
